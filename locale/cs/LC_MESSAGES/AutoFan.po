@@ -1,0 +1,56 @@
+# Language cs/LC translations for PACKAGE package.
+# Copyright (C) 2025 THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# Automatically generated, 2025.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: AutoFan\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-08-07 20:32+0200\n"
+"PO-Revision-Date: 2025-08-07 20:35+0200\n"
+"Last-Translator: ims <ims@openpli.org>\n"
+"Language-Team: ims@openpli.org\n"
+"Language: cs\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.6\n"
+
+#: ../plugin/ui.py:44
+#, python-format
+msgid "%d secs"
+msgstr "%d secs"
+
+#: ../plugin/ui.py:117 ../plugin/ui.py:119
+msgid "AutoFan"
+msgstr ""
+
+#: ../plugin/ui.py:75
+msgid "Cancel"
+msgstr "Zavřít"
+
+#: ../plugin/plugin.py:33
+msgid "Controls Edision OsMega fan."
+msgstr "Řízení ventilátoru Edision OSMega."
+
+#: ../plugin/ui.py:88
+msgid "Fan mode"
+msgstr "Mód ventilátoru"
+
+#: ../plugin/ui.py:90
+msgid "Refresh time"
+msgstr "Čas obnovy"
+
+#: ../plugin/ui.py:89
+msgid "Temperature"
+msgstr "Teplota"
+
+#: ../plugin/ui.py:117
+#, python-format
+msgid "temperature: %d\\u00b0C"
+msgstr "teplota: %d\\u00b0C"
+
+#: ../plugin/ui.py:119
+msgid "unknown temperature"
+msgstr "neznámá teplota"

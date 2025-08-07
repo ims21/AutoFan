@@ -1,0 +1,55 @@
+# Language nl/LC translations for PACKAGE package.
+# Copyright (C) 2025 THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# Automatically generated, 2025.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-08-07 20:32+0200\n"
+"PO-Revision-Date: 2025-08-07 20:32+0200\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: nl/LC_MESSAGES/AutoFan\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../plugin/ui.py:44
+#, python-format
+msgid "%d secs"
+msgstr ""
+
+#: ../plugin/ui.py:117 ../plugin/ui.py:119
+msgid "AutoFan"
+msgstr ""
+
+#: ../plugin/ui.py:75
+msgid "Cancel"
+msgstr ""
+
+#: ../plugin/plugin.py:33
+msgid "Controls Edision OsMega fan."
+msgstr ""
+
+#: ../plugin/ui.py:88
+msgid "Fan mode"
+msgstr ""
+
+#: ../plugin/ui.py:90
+msgid "Refresh time"
+msgstr ""
+
+#: ../plugin/ui.py:89
+msgid "Temperature"
+msgstr ""
+
+#: ../plugin/ui.py:117
+#, python-format
+msgid "temperature: %d\\u00b0C"
+msgstr ""
+
+#: ../plugin/ui.py:119
+msgid "unknown temperature"
+msgstr ""
