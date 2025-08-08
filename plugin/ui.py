@@ -200,7 +200,7 @@ class AutoFanMain():
 					timestamp = strftime("%H:%M:%S")
 					fan = 0 if self.getFanMode() == "off" else 1
 					diff = self.getTemperature() - int(cfg.temperature.value)
-					f.write("%s,%s,%d,%d,%s\n" % (timestamp, fan, self.getTemperature(), int(cfg.temperature.value), "{:+d}".format(diff)))
+					f.write("%s,%s,%d,%d,%s\n" % (timestamp, fan, int(cfg.temperature.value), self.getTemperature(), "{:+d}".format(diff)))
 			except Exception as e:
 				print("[AutoFan] Failed to write to log: %s" % e)
 
