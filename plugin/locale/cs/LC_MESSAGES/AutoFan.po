@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: AutoFan\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-08-08 13:58+0200\n"
-"PO-Revision-Date: 2025-08-08 13:59+0200\n"
+"POT-Creation-Date: 2025-08-08 18:53+0200\n"
+"PO-Revision-Date: 2025-08-08 18:58+0200\n"
 "Last-Translator: ims <ims@openpli.org>\n"
 "Language-Team: ims@openpli.org\n"
 "Language: cs\n"
@@ -34,7 +34,7 @@ msgstr "Zavřít"
 msgid "Check interval"
 msgstr "Interval kontroly"
 
-#: ../plugin.py:33
+#: ../plugin.py:41
 msgid "Controls Edision OsMega fan."
 msgstr "Řízení ventilátoru Edision OSMega."
 
@@ -49,6 +49,10 @@ msgstr "Zapisuje čas, stav ventilátoru a teploty do souboru každých 5 sekund
 #: ../ui.py:94
 msgid "Log to file"
 msgstr "Log do souboru"
+
+#: ../plugin.py:29
+msgid "No controllable fan exists on this box!"
+msgstr "Na tomto boxu neexistuje žádný řiditelný ventilátor!"
 
 #: ../ui.py:92
 msgid "Temperature"

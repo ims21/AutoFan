@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-08-08 13:58+0200\n"
+"POT-Creation-Date: 2025-08-08 18:53+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -34,7 +34,7 @@ msgstr ""
 msgid "Check interval"
 msgstr ""
 
-#: ../plugin.py:33
+#: ../plugin.py:41
 msgid "Controls Edision OsMega fan."
 msgstr ""
 
@@ -48,6 +48,10 @@ msgstr ""
 
 #: ../ui.py:94
 msgid "Log to file"
+msgstr ""
+
+#: ../plugin.py:29
+msgid "No controllable fan exists on this box!"
 msgstr ""
 
 #: ../ui.py:92

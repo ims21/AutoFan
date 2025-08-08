@@ -18,15 +18,23 @@
 
 from . import _
 from Plugins.Plugin import PluginDescriptor
+from Tools.Directories import fileCheck
 
 def main(session,**kwargs):
-	from . import ui
-	session.open(ui.AutoFanSetup)
+	if fileCheck("/proc/stb/fp/fan"):
+		from . import ui
+		session.open(ui.AutoFanSetup)
+	else:
+		from Screens.MessageBox import MessageBox
+		session.open(MessageBox, _("No controllable fan exists on this box!"), type=MessageBox.TYPE_ERROR)
 
 def sessionstart(reason, **kwargs):
 	if reason == 0:
-		from . import ui
-		ui.AutoFan.startAutoFan()
+		if fileCheck("/proc/stb/fp/fan"):
+			from . import ui
+			ui.AutoFan.startAutoFan()
+		else:
+			print("[AutoFan] No fan device found on this box, plugin not started.")
 
 def Plugins(**kwargs):
 	name = "AutoFan"
