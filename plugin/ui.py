@@ -2,7 +2,7 @@
 #
 #    Plugin for Enigma2, control fan in edision osmega
 #
-#    Coded by ims (c)2025, version 1.0.3
+#    Coded by ims (c)2025, version 1.0.4
 #    
 #    This program is free software; you can redistribute it and/or
 #    modify it under the terms of the GNU General Public License
@@ -27,6 +27,7 @@ from Components.Sources.StaticText import StaticText
 from enigma import eTimer, getDesktop
 from Components.Pixmap import Pixmap
 from time import strftime
+import subprocess
 
 desktop = getDesktop(0)
 Width = desktop.size().width()
@@ -90,7 +91,7 @@ class AutoFanSetup(Screen, ConfigListScreen):
 		if config.usage.fan.value == "auto":
 			self.list.append((_("Temperature"), cfg.temperature, _("The fan turns off when the set temperature is reached.")))
 			self.list.append((_("Check interval"), cfg.refresh, _("Interval for temperature evaluation to control the fan.")))
-			self.list.append((_("Log to file"), cfg.log, _("Log time, fan state and temperatures to a file during each 5 second. Turning off and on will overwrite the /tmp/autofan.log file.")))
+		self.list.append((_("Log to file"), cfg.log, _("Log time, fan state, and temperatures to a file every 5 seconds in 'auto' mode, otherwise every 60 seconds. Turning the device off and on will overwrite the /tmp/autofan.log file.")))
 		self["config"].setList(self.list)
 
 	def changedEntry(self):
@@ -135,7 +136,8 @@ class AutoFanMain():
 	def startAutoFan(self):
 		if config.usage.fan.value == "auto":
 			self.AutoFanTimers.start(10000, True) # wait 10s on start enigma2
-		self.AutoFanLogTimer.start(5000, False)
+		self.saveLog()
+		self.AutoFanLogTimer.start(60000 if config.usage.fan.value != "auto" else 5000, False)
 
 	def getTemperature(self):
 		try:
@@ -144,6 +146,17 @@ class AutoFanMain():
 				return int(temp)
 		except:
 			return None
+
+	def getHDDTemperature(self, dev="/dev/sda"):
+		try:
+			output = subprocess.check_output(["hddtemp", dev], stderr=subprocess.DEVNULL, text=True)
+			degree = chr(176)
+			if degree + "C" in output:
+				temp_part = output.split(":")[-1].strip()
+				return int(temp_part.replace(degree + "C", "").strip())
+		except Exception as e:
+			print("[AutoFan] HDD temperature read error:", e)
+		return None
 
 	def getFanMode(self):
 		try:
@@ -199,8 +212,11 @@ class AutoFanMain():
 				with open("/tmp/autofan.log", "a") as f:
 					timestamp = strftime("%H:%M:%S")
 					fan = 0 if self.getFanMode() == "off" else 1
-					diff = self.getTemperature() - int(cfg.temperature.value)
-					f.write("%s,%s,%d,%d,%s\n" % (timestamp, fan, int(cfg.temperature.value), self.getTemperature(), "{:+d}".format(diff)))
+					if config.usage.fan.value == "auto":
+						diff = self.getTemperature() - int(cfg.temperature.value)
+						f.write("%s,%s,%d,%d,%s,%d\n" % (timestamp, fan, int(cfg.temperature.value), self.getTemperature(), "{:+d}".format(diff), self.getHDDTemperature()))
+					else:
+						f.write("%s,fan:%s,cpu:%d,hdd:%d\n" % (timestamp, fan, self.getTemperature(), self.getHDDTemperature()))
 			except Exception as e:
 				print("[AutoFan] Failed to write to log: %s" % e)
 

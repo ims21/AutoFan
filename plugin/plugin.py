@@ -2,7 +2,7 @@
 #
 #    Plugin for Enigma2, control fan in edision osmega
 #
-#    Coded by ims (c)2025, version 1.0.3
+#    Coded by ims (c)2025, version 1.0.4
 #    
 #    This program is free software; you can redistribute it and/or
 #    modify it under the terms of the GNU General Public License
