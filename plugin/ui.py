@@ -221,12 +221,12 @@ class AutoFanMain():
 				with open("/tmp/autofan.log", "a") as f:
 					timestamp = strftime("%H:%M:%S")
 					fan = 0 if self.getFanMode() == "off" else 1
-					hdd = "sleep" if self.isDiskSleeping() else ""
+					hdd = ",sleep" if self.isDiskSleeping() else ""
 					if config.usage.fan.value == "auto":
 						diff = self.getTemperature() - int(cfg.temperature.value)
-						f.write("%s,%s,%d,%d,%s,%d,%s\n" % (timestamp, fan, int(cfg.temperature.value), self.getTemperature(), "{:+d}".format(diff), self.getHDDTemperature(), hdd))
+						f.write("%s,%s,%d,%d,%s,%d%s\n" % (timestamp, fan, int(cfg.temperature.value), self.getTemperature(), "{:+d}".format(diff), self.getHDDTemperature(), hdd))
 					else:
-						f.write("%s,fan:%s,cpu:%d,hdd:%d,%s\n" % (timestamp, fan, self.getTemperature(), self.getHDDTemperature(), hdd))
+						f.write("%s,fan:%s,cpu:%d,hdd:%d%s\n" % (timestamp, fan, self.getTemperature(), self.getHDDTemperature(), hdd))
 			except Exception as e:
 				print("[AutoFan] Failed to write to log: %s" % e)
 		self.oldLog = cfg.log.value
