@@ -2,7 +2,7 @@
 #
 #    Plugin for Enigma2, control fan in edision osmega
 #
-#    Coded by ims (c)2025, version 1.0.0
+#    Coded by ims (c)2025, version 1.0.3
 #    
 #    This program is free software; you can redistribute it and/or
 #    modify it under the terms of the GNU General Public License
@@ -18,14 +18,15 @@
 
 from . import _
 from Screens.Screen import Screen
+from Screens.Setup import getConfigMenuItem
 from Components.ConfigList import ConfigListScreen
-from Components.config import ConfigSubsection, config, ConfigSelection
+from Components.config import ConfigSubsection, config, ConfigSelection, ConfigYesNo
 from Components.ActionMap import ActionMap
 from Components.Label import Label
 from Components.Sources.StaticText import StaticText
 from enigma import eTimer, getDesktop
-from enigma import eSize, ePoint
 from Components.Pixmap import Pixmap
+from time import strftime
 
 desktop = getDesktop(0)
 Width = desktop.size().width()
@@ -41,9 +42,10 @@ for i in range(35, 70, 1):
 config.plugins.autofan.temperature = ConfigSelection(default="50", choices=choicelist)
 choicelist = []
 for i in range(5, 125, 5):
-	choicelist.append(("%d" % i, _("%d secs") % i))
+	choicelist.append(("%d" % i, _("%d s") % i))
 config.plugins.autofan.refresh = ConfigSelection(default="10", choices=choicelist)
 cfg = config.plugins.autofan
+config.plugins.autofan.log = ConfigYesNo(default=False)
 
 class AutoFanSetup(Screen, ConfigListScreen):
 	skin = """
@@ -71,41 +73,38 @@ class AutoFanSetup(Screen, ConfigListScreen):
 		self.onChangedEntry = [ ]
 		ConfigListScreen.__init__(self, self.list, session = session, on_change = self.changedEntry)
 
-#		self["key_green"] = StaticText(_("Ok"))
 		self["key_red"] = StaticText(_("Cancel"))
 		self["red"] = Pixmap()
-#		self["green"] = Pixmap()
 
 		self["actions"] = ActionMap(["SetupActions", "ColorActions"],
 			{
-#				"ok": self.ok,
-#				"green": self.ok,
 				"red": self.quit,
 				"cancel": self.quit,
 			}, -2)
 
 		self["description"] = Label()
-		self.fanmode = _("Fan mode")
-		self.temperature = _("Temperature")
-		self.refresh = _("Refresh time")
 		self.onLayoutFinish.append(self.layoutFinished)
 
 	def listMenu(self):
-		self.list = [(self.fanmode, config.usage.fan)]
+		self.list = [getConfigMenuItem("config.usage.fan")]
 		if config.usage.fan.value == "auto":
-			self.list.append((self.temperature, cfg.temperature))
-			self.list.append((self.refresh, cfg.refresh))
+			self.list.append((_("Temperature"), cfg.temperature, _("The fan turns off when the set temperature is reached.")))
+			self.list.append((_("Check interval"), cfg.refresh, _("Interval for temperature evaluation to control the fan.")))
+			self.list.append((_("Log to file"), cfg.log, _("Log time, fan state and temperatures to a file during each 5 second. Turning off and on will overwrite the /tmp/autofan.log file.")))
 		self["config"].setList(self.list)
 
 	def changedEntry(self):
-		if self["config"].getCurrent()[0] == self.fanmode:
+		if self["config"].getCurrent()[1] is config.usage.fan:
 			print("[AutoFan] fan mode changed to:", config.usage.fan.value)
 			self.listMenu()
-		#if self["config"].getCurrent()[0] == self.fanmode:
+		#if self["config"].getCurrent()[1] == cfg.temperature:
 		#	pass
-		#if self["config"].getCurrent()[0] == self.refresh:
+		#if self["config"].getCurrent()[1] == cfg.refresh:
 		#	pass
-		AutoFan.startAutoFan(self.session)
+		if self["config"].getCurrent()[1] == cfg.log:
+			if cfg.log.value:
+				AutoFan.header2Log()
+		AutoFan.startAutoFan()
 
 	def layoutFinished(self):
 		self.listMenu()
@@ -114,7 +113,7 @@ class AutoFanSetup(Screen, ConfigListScreen):
 	def refreshTemperature(self):
 		temperature = AutoFan.getTemperature()
 		if temperature is not None:
-			self.setTitle(_("AutoFan") + " - " + _("temperature: %d\u00b0C" % temperature))
+			self.setTitle(_("AutoFan") + " - " + _("temperature: %d%sC") % (temperature, chr(176)))
 		else:
 			self.setTitle(_("AutoFan") + " - " + _("unknown temperature"))
 		self.AutoFanRefreshTimer.start(1000, True)
@@ -122,7 +121,7 @@ class AutoFanSetup(Screen, ConfigListScreen):
 	def quit(self):
 		cfg.save()
 		config.usage.fan.save()
-		AutoFan.startAutoFan(self.session)
+		AutoFan.startAutoFan()
 		self.close()
 
 
@@ -130,11 +129,13 @@ class AutoFanMain():
 	def __init__(self):
 		self.AutoFanTimers = eTimer()
 		self.AutoFanTimers.timeout.get().append(self.refreshTemp)
+		self.AutoFanLogTimer = eTimer()
+		self.AutoFanLogTimer.timeout.get().append(self.saveLog)
 
-	def startAutoFan(self, session):
-		self.session = session
+	def startAutoFan(self):
 		if config.usage.fan.value == "auto":
 			self.AutoFanTimers.start(10000, True) # wait 10s on start enigma2
+		self.AutoFanLogTimer.start(5000, False)
 
 	def getTemperature(self):
 		try:
@@ -165,21 +166,42 @@ class AutoFanMain():
 
 	def refreshTemp(self):
 		#print("[AutoFan] mode: %s, temperature: %s, refresh: %s sec", config.usage.fan.value, cfg.temperature.value, cfg.refresh.value)
-		mode = self.getFanMode
+		mode = self.getFanMode()
 		if config.usage.fan.value == "on" and mode != "on":
 			self.setFanMode("on")
 		elif config.usage.fan.value == "off" and mode != "off":
 			self.setFanMode("off")
-		else: # auto
+		else: # mode = auto
 			temperature = self.getTemperature()
 			if temperature is not None:
 				print("[AutoFan] temperature: %d\u00b0C" % temperature)
 				if temperature > int(cfg.temperature.value):
+					mode = "auto"
 					self.setFanMode("auto")
 				else:
-					self.setFanMode("off")
+					mode = "off"
+				self.setFanMode(mode)
 			else:
 				print("[AutoFan] cannot read temperature")
 			self.AutoFanTimers.start(int(cfg.refresh.value) * 1000, True)
+
+	def header2Log(self):
+		try:
+			with open("/tmp/autofan.log", "w") as f:
+				f.write("%s\n" % strftime("%Y.%m.%d %H:%M:%S"))
+				f.write("-------------------\n")
+		except Exception as e:
+				print("[AutoFan] Failed to write header to log: %s" % e)
+
+	def saveLog(self):
+		if cfg.log.value:
+			try:
+				with open("/tmp/autofan.log", "a") as f:
+					timestamp = strftime("%H:%M:%S")
+					fan = 0 if self.getFanMode() == "off" else 1
+					diff = self.getTemperature() - int(cfg.temperature.value)
+					f.write("%s,%s,%d,%d,%s\n" % (timestamp, fan, self.getTemperature(), int(cfg.temperature.value), "{:+d}".format(diff)))
+			except Exception as e:
+				print("[AutoFan] Failed to write to log: %s" % e)
 
 AutoFan = AutoFanMain()

@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: AutoFan\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-08-07 20:32+0200\n"
-"PO-Revision-Date: 2025-08-07 20:35+0200\n"
+"POT-Creation-Date: 2025-08-08 11:51+0200\n"
+"PO-Revision-Date: 2025-08-08 11:53+0200\n"
 "Last-Translator: ims <ims@openpli.org>\n"
 "Language-Team: ims@openpli.org\n"
 "Language: cs\n"
@@ -17,40 +17,52 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Poedit 3.6\n"
 
-#: ../plugin/ui.py:44
+#: ../ui.py:45
 #, python-format
-msgid "%d secs"
-msgstr "%d secs"
+msgid "%d s"
+msgstr "%d s"
 
-#: ../plugin/ui.py:117 ../plugin/ui.py:119
+#: ../ui.py:116 ../ui.py:118
 msgid "AutoFan"
 msgstr ""
 
-#: ../plugin/ui.py:75
+#: ../ui.py:76
 msgid "Cancel"
 msgstr "Zavřít"
 
-#: ../plugin/plugin.py:33
+#: ../ui.py:92
+msgid "Check interval"
+msgstr "Interval kontroly"
+
+#: ../plugin.py:33
 msgid "Controls Edision OsMega fan."
 msgstr "Řízení ventilátoru Edision OSMega."
 
-#: ../plugin/ui.py:88
-msgid "Fan mode"
-msgstr "Mód ventilátoru"
+#: ../ui.py:92
+msgid "Interval for temperature evaluation to control the fan."
+msgstr "Interval vyhodnocování teploty pro následné řízení ventilátoru."
 
-#: ../plugin/ui.py:90
-msgid "Refresh time"
-msgstr "Čas obnovy"
+#: ../ui.py:93
+msgid "Log time, fan state and temperatures to a file during each 5 second. Turning off and on will overwrite the /tmp/autofan.log file."
+msgstr "Zapisuje čas, stav ventilátoru a teploty do souboru každých 5 sekund. Vypnutí a zapnutí přepíše soubor /tmp/autofan.log."
 
-#: ../plugin/ui.py:89
+#: ../ui.py:93
+msgid "Log to file"
+msgstr "Log do souboru"
+
+#: ../ui.py:91
 msgid "Temperature"
 msgstr "Teplota"
 
-#: ../plugin/ui.py:117
-#, python-format
-msgid "temperature: %d\\u00b0C"
-msgstr "teplota: %d\\u00b0C"
+#: ../ui.py:91
+msgid "The fan turns off when the set temperature is reached."
+msgstr "Po dosažení nastavené teploty se ventilátor vypne."
 
-#: ../plugin/ui.py:119
+#: ../ui.py:116
+#, python-format
+msgid "temperature: %d%sC"
+msgstr "teplota: %d%sC"
+
+#: ../ui.py:118
 msgid "unknown temperature"
 msgstr "neznámá teplota"

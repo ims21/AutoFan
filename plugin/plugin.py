@@ -2,7 +2,7 @@
 #
 #    Plugin for Enigma2, control fan in edision osmega
 #
-#    Coded by ims (c)2025, version 1.0.0
+#    Coded by ims (c)2025, version 1.0.3
 #    
 #    This program is free software; you can redistribute it and/or
 #    modify it under the terms of the GNU General Public License
@@ -26,7 +26,7 @@ def main(session,**kwargs):
 def sessionstart(reason, **kwargs):
 	if reason == 0:
 		from . import ui
-		ui.AutoFan.startAutoFan(kwargs["session"])
+		ui.AutoFan.startAutoFan()
 
 def Plugins(**kwargs):
 	name = "AutoFan"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-08-07 20:32+0200\n"
+"POT-Creation-Date: 2025-08-08 11:51+0200\n"
 "PO-Revision-Date: 2025-08-07 20:32+0200\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -16,40 +16,52 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ../plugin/ui.py:44
+#: ../ui.py:45
 #, python-format
-msgid "%d secs"
+msgid "%d s"
 msgstr ""
 
-#: ../plugin/ui.py:117 ../plugin/ui.py:119
+#: ../ui.py:116 ../ui.py:118
 msgid "AutoFan"
 msgstr ""
 
-#: ../plugin/ui.py:75
+#: ../ui.py:76
 msgid "Cancel"
 msgstr ""
 
-#: ../plugin/plugin.py:33
+#: ../ui.py:92
+msgid "Check interval"
+msgstr ""
+
+#: ../plugin.py:33
 msgid "Controls Edision OsMega fan."
 msgstr ""
 
-#: ../plugin/ui.py:88
-msgid "Fan mode"
+#: ../ui.py:92
+msgid "Interval for temperature evaluation to control the fan."
 msgstr ""
 
-#: ../plugin/ui.py:90
-msgid "Refresh time"
+#: ../ui.py:93
+msgid "Log time, fan state and temperatures to a file during each 5 second. Turning off and on will overwrite the /tmp/autofan.log file."
 msgstr ""
 
-#: ../plugin/ui.py:89
+#: ../ui.py:93
+msgid "Log to file"
+msgstr ""
+
+#: ../ui.py:91
 msgid "Temperature"
 msgstr ""
 
-#: ../plugin/ui.py:117
-#, python-format
-msgid "temperature: %d\\u00b0C"
+#: ../ui.py:91
+msgid "The fan turns off when the set temperature is reached."
 msgstr ""
 
-#: ../plugin/ui.py:119
+#: ../ui.py:116
+#, python-format
+msgid "temperature: %d%sC"
+msgstr ""
+
+#: ../ui.py:118
 msgid "unknown temperature"
 msgstr ""
