@@ -1,0 +1,8 @@
+<setupxml>
+	<setup key="autofan" title="AutoFan" showOpenWebIf="1">
+		<item level="0" text="Fan operation">config.usage.fan</item>
+		<item level="0" text="Temperature">config.plugins.autofan.temperature</item>
+		<item level="0" text="Check interval">config.plugins.autofan.refresh</item>
+		<item level="0" text="Log to file">config.plugins.autofan.log</item>
+	</setup>
+</setupxml>

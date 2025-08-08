@@ -37,16 +37,11 @@ if Width > 1280:
 	fullHD = True
 
 config.plugins.autofan = ConfigSubsection()
-choicelist = []
-for i in range(35, 70, 1):
-	choicelist.append(("%d" % i, "%d\u00b0C" % i))
-config.plugins.autofan.temperature = ConfigSelection(default="50", choices=choicelist)
-choicelist = []
-for i in range(5, 125, 5):
-	choicelist.append(("%d" % i, _("%d s") % i))
-config.plugins.autofan.refresh = ConfigSelection(default="10", choices=choicelist)
-cfg = config.plugins.autofan
+config.plugins.autofan.temperature = ConfigSelection(default="50", choices=[(str(i), "%d\u00b0C" % i) for i in range(35, 70)])
+config.plugins.autofan.refresh = ConfigSelection(default="10", choices=[(str(i), _("%d s") % i) for i in range(5, 125, 5)])
 config.plugins.autofan.log = ConfigYesNo(default=False)
+cfg = config.plugins.autofan
+
 
 class AutoFanSetup(Screen, ConfigListScreen):
 	skin = """
@@ -132,38 +127,50 @@ class AutoFanMain():
 		self.AutoFanTimers.timeout.get().append(self.refreshTemp)
 		self.AutoFanLogTimer = eTimer()
 		self.AutoFanLogTimer.timeout.get().append(self.saveLog)
+		self.oldLog = cfg.log.value
 
 	def startAutoFan(self):
-		if config.usage.fan.value == "auto":
-			self.AutoFanTimers.start(10000, True) # wait 10s on start enigma2
+		self.AutoFanTimers.start(10000, True) # wait 10s on start enigma2
 		self.saveLog()
-		self.AutoFanLogTimer.start(60000 if config.usage.fan.value != "auto" else 5000, False)
 
 	def getTemperature(self):
 		try:
 			with open("/proc/stb/fp/temp_sensor_avs", "r") as f:
 				temp = f.read().strip()
 				return int(temp)
-		except:
-			return None
+		except Exception as e:
+			print("[AutoFan] CPU temperature read error:", e)
+			return -1
+
+	def isDiskSleeping(self, dev="/dev/sda"):
+		try:
+			output = subprocess.check_output(["hdparm", "-C", dev], stderr=subprocess.DEVNULL, text=True)
+			if "standby" in output.lower() or "sleeping" in output.lower():
+				return True
+			return False
+		except Exception as e:
+			print("[AutoFan] HDD sleep check error:", e)
+			return False
 
 	def getHDDTemperature(self, dev="/dev/sda"):
 		try:
-			output = subprocess.check_output(["hddtemp", dev], stderr=subprocess.DEVNULL, text=True)
-			degree = chr(176)
-			if degree + "C" in output:
-				temp_part = output.split(":")[-1].strip()
-				return int(temp_part.replace(degree + "C", "").strip())
+			output = subprocess.check_output(["smartctl", "-A", dev], stderr=subprocess.DEVNULL, text=True)
+			for line in output.splitlines():
+				if "Temperature_Celsius" in line or "Temperature_Internal" in line:
+					parts = line.split()
+					if len(parts) >= 10 and parts[-1].isdigit():
+						return int(parts[-1])
 		except Exception as e:
 			print("[AutoFan] HDD temperature read error:", e)
-		return None
+			return -1
 
 	def getFanMode(self):
 		try:
 			with open("/proc/stb/fp/fan", "r") as f:
 				mode = f.read().strip()
 				return mode
-		except:
+		except Exception as e:
+			print("[AutoFan] Fan mode read error:", e)
 			return None
 
 	def setFanMode(self, mode):
@@ -207,17 +214,23 @@ class AutoFanMain():
 				print("[AutoFan] Failed to write header to log: %s" % e)
 
 	def saveLog(self):
+		if self.oldLog != cfg.log.value and cfg.log.value:
+			self.header2Log()
 		if cfg.log.value:
 			try:
 				with open("/tmp/autofan.log", "a") as f:
 					timestamp = strftime("%H:%M:%S")
 					fan = 0 if self.getFanMode() == "off" else 1
+					hdd = "sleep" if self.isDiskSleeping() else ""
 					if config.usage.fan.value == "auto":
 						diff = self.getTemperature() - int(cfg.temperature.value)
-						f.write("%s,%s,%d,%d,%s,%d\n" % (timestamp, fan, int(cfg.temperature.value), self.getTemperature(), "{:+d}".format(diff), self.getHDDTemperature()))
+						f.write("%s,%s,%d,%d,%s,%d,%s\n" % (timestamp, fan, int(cfg.temperature.value), self.getTemperature(), "{:+d}".format(diff), self.getHDDTemperature(), hdd))
 					else:
-						f.write("%s,fan:%s,cpu:%d,hdd:%d\n" % (timestamp, fan, self.getTemperature(), self.getHDDTemperature()))
+						f.write("%s,fan:%s,cpu:%d,hdd:%d,%s\n" % (timestamp, fan, self.getTemperature(), self.getHDDTemperature(), hdd))
 			except Exception as e:
 				print("[AutoFan] Failed to write to log: %s" % e)
+		self.oldLog = cfg.log.value
+		delay = 60000 if config.usage.fan.value != "auto" else 5000
+		self.AutoFanLogTimer.start(delay, False)
 
 AutoFan = AutoFanMain()
