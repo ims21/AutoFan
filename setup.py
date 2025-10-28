@@ -3,7 +3,7 @@ import setup_translate
 
 pkg = 'Extensions.AutoFan'
 setup(name = 'enigma2-plugin-extensions-autofan',
-	version = '1.0.4',
+	version = '1.0.5',
 	description = 'control fan for osmega',
 	packages = [pkg],
 	package_dir = {pkg: 'plugin'},

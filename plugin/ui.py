@@ -2,7 +2,7 @@
 #
 #    Plugin for Enigma2, control fan in edision osmega
 #
-#    Coded by ims (c)2025, version 1.0.4
+#    Coded by ims (c)2025, version 1.0.5
 #    
 #    This program is free software; you can redistribute it and/or
 #    modify it under the terms of the GNU General Public License
@@ -28,6 +28,9 @@ from enigma import eTimer, getDesktop
 from Components.Pixmap import Pixmap
 from time import strftime
 import subprocess
+import gzip
+import shutil
+import os
 
 desktop = getDesktop(0)
 Width = desktop.size().width()
@@ -40,8 +43,10 @@ config.plugins.autofan = ConfigSubsection()
 config.plugins.autofan.temperature = ConfigSelection(default="50", choices=[(str(i), "%d\u00b0C" % i) for i in range(35, 70)])
 config.plugins.autofan.refresh = ConfigSelection(default="10", choices=[(str(i), _("%d s") % i) for i in range(5, 125, 5)])
 config.plugins.autofan.log = ConfigYesNo(default=False)
+config.plugins.autofan.log_date = ConfigYesNo(default=False)
 cfg = config.plugins.autofan
 
+log_path = "/tmp/autofan.log"
 
 class AutoFanSetup(Screen, ConfigListScreen):
 	skin = """
@@ -86,7 +91,9 @@ class AutoFanSetup(Screen, ConfigListScreen):
 		if config.usage.fan.value == "auto":
 			self.list.append((_("Temperature"), cfg.temperature, _("The fan turns off when the set temperature is reached.")))
 			self.list.append((_("Check interval"), cfg.refresh, _("Interval for temperature evaluation to control the fan.")))
-		self.list.append((_("Log to file"), cfg.log, _("Log time, fan state, and temperatures to a file every 5 seconds in 'auto' mode, otherwise every 60 seconds. Turning the device off and on will overwrite the /tmp/autofan.log file.")))
+		self.list.append((_("Log to file"), cfg.log, _("Log time, fan state, and temperatures to a file every 5 seconds in 'auto' mode (without value descriptions), otherwise every 60 seconds (with value descriptions). Turning the device off and on will overwrite the '%s' file.") % log_path))
+		if cfg.log.value:
+			self.list.append((4 * " " + _("Date in the log"), cfg.log_date, _("Add the date to the time entries in the log file.")))
 		self["config"].setList(self.list)
 
 	def changedEntry(self):
@@ -98,8 +105,9 @@ class AutoFanSetup(Screen, ConfigListScreen):
 		#if self["config"].getCurrent()[1] == cfg.refresh:
 		#	pass
 		if self["config"].getCurrent()[1] == cfg.log:
+			self.listMenu()
 			if cfg.log.value:
-				AutoFan.header2Log()
+				AutoFan.rotateLogBeforeEnable()
 		AutoFan.startAutoFan()
 
 	def layoutFinished(self):
@@ -127,7 +135,6 @@ class AutoFanMain():
 		self.AutoFanTimers.timeout.get().append(self.refreshTemp)
 		self.AutoFanLogTimer = eTimer()
 		self.AutoFanLogTimer.timeout.get().append(self.saveLog)
-		self.oldLog = cfg.log.value
 
 	def startAutoFan(self):
 		self.AutoFanTimers.start(10000, True) # wait 10s on start enigma2
@@ -205,21 +212,34 @@ class AutoFanMain():
 				print("[AutoFan] cannot read temperature")
 			self.AutoFanTimers.start(int(cfg.refresh.value) * 1000, True)
 
-	def header2Log(self):
+	def rotateLogBeforeEnable(self):
 		try:
-			with open("/tmp/autofan.log", "w") as f:
-				f.write("%s\n" % strftime("%Y.%m.%d %H:%M:%S"))
-				f.write("-------------------\n")
+			if os.path.exists(log_path):
+				rotated_path = "/tmp/autofan_%s.log" % strftime("%Y%m%d-%H%M%S")
+				os.rename(log_path, rotated_path)
+				compressed_path = rotated_path + ".gz"
+				with open(rotated_path, "rb") as f_in, gzip.open(compressed_path, "wb") as f_out:
+					shutil.copyfileobj(f_in, f_out)
+				try:
+					os.remove(rotated_path)
+				except:
+					print("[AutoFan] cannot remove %d" % rotated_path)
+				self.writeHeader()
 		except Exception as e:
-				print("[AutoFan] Failed to write header to log: %s" % e)
+			print("[AutoFan] Failed to write header to log: %s" % e)
+
+	def writeHeader(self):
+		with open(log_path, "w") as f:
+			f.write("%s\n" % strftime("Start %Y.%m.%d %H:%M:%S"))
+			f.write(39 * "-" + "\n")
 
 	def saveLog(self):
-		if self.oldLog != cfg.log.value and cfg.log.value:
-			self.header2Log()
 		if cfg.log.value:
+			if not os.path.exists(log_path):
+				self.writeHeader()
 			try:
-				with open("/tmp/autofan.log", "a") as f:
-					timestamp = strftime("%H:%M:%S")
+				with open(log_path, "a") as f:
+					timestamp = strftime("%Y.%m.%d %H:%M:%S") if cfg.log_date.value else strftime("%H:%M:%S")
 					fan = 0 if self.getFanMode() == "off" else 1
 					hdd = ",sleep" if self.isDiskSleeping() else ""
 					if config.usage.fan.value == "auto":
@@ -229,7 +249,6 @@ class AutoFanMain():
 						f.write("%s,fan:%s,cpu:%d,hdd:%d%s\n" % (timestamp, fan, self.getTemperature(), self.getHDDTemperature(), hdd))
 			except Exception as e:
 				print("[AutoFan] Failed to write to log: %s" % e)
-		self.oldLog = cfg.log.value
 		delay = 60000 if config.usage.fan.value != "auto" else 5000
 		self.AutoFanLogTimer.start(delay, False)
 

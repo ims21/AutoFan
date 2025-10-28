@@ -7,22 +7,26 @@ msgid ""
 msgstr ""
 "Project-Id-Version: AutoFan\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-08-08 18:53+0200\n"
-"PO-Revision-Date: 2025-08-08 18:58+0200\n"
+"POT-Creation-Date: 2025-10-28 10:41+0100\n"
+"PO-Revision-Date: 2025-10-28 10:44+0100\n"
 "Last-Translator: ims <ims@openpli.org>\n"
 "Language-Team: ims@openpli.org\n"
 "Language: cs\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 3.6\n"
+"X-Generator: Poedit 3.8\n"
 
-#: ../ui.py:46
+#: ../ui.py:44
 #, python-format
 msgid "%d s"
 msgstr "%d s"
 
-#: ../ui.py:117 ../ui.py:119
+#: ../ui.py:96
+msgid "Add the date to the time entries in the log file."
+msgstr "Přidává datum k položkám v logu."
+
+#: ../ui.py:120 ../ui.py:122
 msgid "AutoFan"
 msgstr ""
 
@@ -38,13 +42,18 @@ msgstr "Interval kontroly"
 msgid "Controls Edision OsMega fan."
 msgstr "Řízení ventilátoru Edision OSMega."
 
+#: ../ui.py:96
+msgid "Date in the log"
+msgstr "Datum do logu"
+
 #: ../ui.py:93
 msgid "Interval for temperature evaluation to control the fan."
 msgstr "Interval vyhodnocování teploty pro následné řízení ventilátoru."
 
 #: ../ui.py:94
-msgid "Log time, fan state, and temperatures to a file every 5 seconds in 'auto' mode, otherwise every 60 seconds. Turning the device off and on will overwrite the /tmp/autofan.log file."
-msgstr "Zapisuje čas, stav ventilátoru a teploty do souboru každých 5 sekund v režimu 'auto', jinak jen každých 60 sekund. Vypnutí a zapnutí přepíše soubor /tmp/autofan.log."
+#, python-format
+msgid "Log time, fan state, and temperatures to a file every 5 seconds in 'auto' mode (without value descriptions), otherwise every 60 seconds (with value descriptions). Turning the device off and on will overwrite the '%s' file."
+msgstr "Zapisuje čas, stav ventilátoru a teploty do souboru každých 5 sekund v režimu 'auto' (bez popisu hodnot), jinak jen každých 60 sekund (s popisem hodnot). Vypnutí a zapnutí přepíše soubor '%s'."
 
 #: ../ui.py:94
 msgid "Log to file"
@@ -62,11 +71,11 @@ msgstr "Teplota"
 msgid "The fan turns off when the set temperature is reached."
 msgstr "Po dosažení nastavené teploty se ventilátor vypne."
 
-#: ../ui.py:117
+#: ../ui.py:120
 #, python-format
 msgid "temperature: %d%sC"
 msgstr "teplota: %d%sC"
 
-#: ../ui.py:119
+#: ../ui.py:122
 msgid "unknown temperature"
 msgstr "neznámá teplota"
